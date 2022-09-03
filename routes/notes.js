@@ -63,7 +63,7 @@ const isOwner = (user,note) => {
 router.get('/',withAuth, async (req,res)=>{
     try {
         
-        let notes = await Note.find({author: req.user._id})
+        let notes = await Note.find({author: req.user._id}).sort({updated_at: 'asc'})
         res.json(notes)
     } catch (error) {
         console.log(error)
@@ -73,13 +73,13 @@ router.get('/',withAuth, async (req,res)=>{
 
 //Edit Notes
 router.put('/:id',withAuth, async (req,res) =>{
-    const {title,body} = req.body;
+    const {title,body, updated_at} = req.body;
     const {id} = req.params;
     try {
         let note = await Note.findById(id)
         if (isOwner(req.user, note)){
             let note = await Note.findByIdAndUpdate(id,
-                {$set: {title: title, body:body} },
+                {$set: {title: title, body:body, updated_at: updated_at} },
                 {upsert: true, 'new':true});//Change the old note for the new one
                 
                 res.json(note)
